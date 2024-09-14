@@ -26,7 +26,7 @@ def parse_data(movie: MovieInfo):
     Args:
         movie (MovieInfo): 要解析的影片信息，解析后的信息直接更新到此变量内
     """
-    url = f'{base_url}/{movie.dvdid}'
+    url = f'{base_url}/ja/{movie.dvdid}'
     resp = request_get(url, delay_raise=True)
     # 疑似JavBus检测到类似爬虫的行为时会要求登录，不过发现目前不需要登录也可以从重定向前的网页中提取信息
     if resp.history and resp.history[0].status_code == 302:
@@ -43,21 +43,21 @@ def parse_data(movie: MovieInfo):
     cover = container.xpath("//a[@class='bigImage']/img/@src")[0]
     preview_pics = container.xpath("//div[@id='sample-waterfall']/a/@href")
     info = container.xpath("//div[@class='col-md-3 info']")[0]
-    dvdid = info.xpath("p/span[text()='識別碼:']")[0].getnext().text
-    publish_date = info.xpath("p/span[text()='發行日期:']")[0].tail.strip()
-    duration = info.xpath("p/span[text()='長度:']")[0].tail.replace('分鐘', '').strip()
-    director_tag = info.xpath("p/span[text()='導演:']")
+    dvdid = info.xpath("p/span[text()='品番:']")[0].getnext().text
+    publish_date = info.xpath("p/span[text()='発売日:']")[0].tail.strip()
+    duration = info.xpath("p/span[text()='収録時間:']")[0].tail.replace('分', '').strip()
+    director_tag = info.xpath("p/span[text()='監督:']")
     if director_tag:    # xpath没有匹配时将得到空列表
         movie.director = director_tag[0].getnext().text.strip()
-    producer_tag = info.xpath("p/span[text()='製作商:']")
+    producer_tag = info.xpath("p/span[text()='メーカー:']")
     if producer_tag:
         text = producer_tag[0].getnext().text
         if text:
             movie.producer = text.strip()
-    publisher_tag = info.xpath("p/span[text()='發行商:']")
+    publisher_tag = info.xpath("p/span[text()='レーベル:']")
     if publisher_tag:
         movie.publisher = publisher_tag[0].getnext().text.strip()
-    serial_tag = info.xpath("p/span[text()='系列:']")
+    serial_tag = info.xpath("p/span[text()='シリーズ:']")
     if serial_tag:
         movie.serial = serial_tag[0].getnext().text
     # genre, genre_id
